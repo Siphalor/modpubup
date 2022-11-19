@@ -17,6 +17,8 @@ import org.apache.tools.ant.filters.StringInputStream;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 public class ModPubUpModrinthTask extends DefaultTask {
+	private final Logger logger = Logging.getLogger(ModPubUpModrinthTask.class);
 	private ModPubUpExtension modPubUpExtension;
 	private ModrinthExtension modrinthExtension;
 
@@ -48,9 +51,11 @@ public class ModPubUpModrinthTask extends DefaultTask {
 		try {
 			String versionId = resolveVersionId();
 			if (versionId == null) {
+				String msg = "The version " + modrinthExtension.getVersionNumber() + " could not be found in the Modrinth project";
 				if (modPubUpExtension.getRequireExist().get()) {
-					throw new GradleException("The version " + modrinthExtension.getVersionNumber() + " could not be found in the Modrinth project");
+					throw new GradleException(msg);
 				}
+				logger.info(msg);
 				return;
 			}
 
@@ -130,5 +135,6 @@ public class ModPubUpModrinthTask extends DefaultTask {
 		if (status.getStatusCode() != 204) {
 			throw new GradleException(Util.getHttpError("Failed to update Modrinth version " + versionId, response));
 		}
+		logger.info("Successfully updated Modrinth version " + versionId + " (" + modrinthExtension.getVersionNumber() + ")");
 	}
 }
