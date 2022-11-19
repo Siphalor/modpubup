@@ -43,3 +43,18 @@ pluginBundle {
 	description = "Plugin for updating the metadata of published Minecraft mod versions"
 	tags = listOf("minecraft", "mods", "modrinth", "curseforge")
 }
+
+publishing {
+	repositories {
+		if (project.hasProperty("siphalorMavenUser")) {
+			maven {
+				name = "Siphalor"
+				url = uri("https://maven.siphalor.de/upload.php")
+				credentials {
+					username = project.property("siphalorMavenUser").toString()
+					password = project.property("siphalorMavenPassword").toString()
+				}
+			}
+		}
+	}
+}
